@@ -22,7 +22,7 @@ function TicketDetail({ user }) {
         setLoading(true);
         setMessage({ type: '', text: '' });
         try {
-            const ticketRes = await fetch(`http://localhost:3001/api/tickets/${id}`);
+            const ticketRes = await fetch(`process.env.REACT_APP_API_BASE_URL/api/tickets/${id}`);
             const ticketData = await ticketRes.json();
             if (!ticketRes.ok) throw new Error(ticketData.error || 'Failed to fetch ticket');
             setTicket(ticketData.ticket);
@@ -30,19 +30,19 @@ function TicketDetail({ user }) {
             setPriority(ticketData.ticket.priority);
             setAssignedTo(ticketData.ticket.assigned_to_user_id || ''); // Handle null
 
-            const commentsRes = await fetch(`http://localhost:3001/api/tickets/${id}/comments`);
+            const commentsRes = await fetch(`process.env.REACT_APP_API_BASE_URL/api/tickets/${id}/comments`);
             const commentsData = await commentsRes.json();
             if (!commentsRes.ok) throw new Error(commentsData.error || 'Failed to fetch comments');
             setComments(commentsData.comments);
 
-            const actionsRes = await fetch(`http://localhost:3001/api/tickets/actions/${id}`);
+            const actionsRes = await fetch(`process.env.REACT_APP_API_BASE_URL/api/tickets/actions/${id}`);
             const actionsData = await actionsRes.json();
             if (!actionsRes.ok) throw new Error(actionsData.error || 'Failed to fetch timeline');
             setActions(actionsData.actions);
 
             if (user?.role === 'admin' || user?.role === 'agent') {
                 // Fetch only agents for assignment dropdown
-                const agentsRes = await fetch('http://localhost:3001/api/users?role=agent');
+                const agentsRes = await fetch('process.env.REACT_APP_API_BASE_URL/api/users?role=agent');
                 const allUsers = await agentsRes.json();
                 setAgents(allUsers.users.filter(u => u.role === 'agent' || u.role === 'admin')); // Admins can also be assigned
             }
@@ -70,7 +70,7 @@ function TicketDetail({ user }) {
             return;
         }
         try {
-            const response = await fetch(`http://localhost:3001/api/tickets/${id}/comments`, {
+            const response = await fetch(`process.env.REACT_APP_API_BASE_URL/api/tickets/${id}/comments`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ content: replyContent, user_id: user.userId }),
@@ -107,7 +107,7 @@ function TicketDetail({ user }) {
         }
 
         try {
-            const response = await fetch(`http://localhost:3001/api/tickets/${id}`, {
+            const response = await fetch(`process.env.REACT_APP_API_BASE_URL/api/tickets/${id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ...changes, current_version: ticket.version, user_id: user.userId }), // Pass current version for optimistic locking

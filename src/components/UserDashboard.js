@@ -33,7 +33,7 @@ function UserDashboard({ user }) {
                 queryParams.append('search', searchTerm);
             }
 
-            const response = await fetch(`http://localhost:3001/api/tickets?${queryParams.toString()}`);
+            const response = await fetch(`process.env.REACT_APP_API_BASE_URL/api/tickets?${queryParams.toString()}`);
             const data = await response.json();
             if (response.ok) {
                 // No client-side filtering needed here, backend handles it with userId and role
@@ -62,7 +62,7 @@ function UserDashboard({ user }) {
         e.preventDefault();
         setMessage({ type: '', text: '' }); // Clear previous messages
         try {
-            const response = await fetch('http://localhost:3001/api/tickets', {
+            const response = await fetch('process.env.REACT_APP_API_BASE_URL/api/tickets', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ title, description, created_by_user_id: user.userId, priority }),
@@ -88,7 +88,7 @@ function UserDashboard({ user }) {
         if (window.confirm('Are you sure you want to delete this ticket? This cannot be undone.')) {
             setMessage({ type: '', text: '' });
             try {
-                const response = await fetch(`http://localhost:3001/api/tickets/${ticketId}`, {
+                const response = await fetch(`process.env.REACT_APP_API_BASE_URL/api/tickets/${ticketId}`, {
                     method: 'DELETE',
                 });
                 const data = await response.json();

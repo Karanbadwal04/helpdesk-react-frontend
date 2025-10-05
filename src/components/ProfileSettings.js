@@ -44,7 +44,7 @@ function ProfileSettings({ user, onUserUpdate }) {
     }
 
     try {
-      const response = await fetch(`http://localhost:3001/api/users/${user.userId}`, {
+      const response = await fetch(`process.env.REACT_APP_API_BASE_URL/api/users/${user.userId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedFields),

@@ -39,7 +39,7 @@ function AdminDashboard({ user }) {
                 queryParams.append('search', searchTerm);
             }
 
-            const response = await fetch(`http://localhost:3001/api/tickets?${queryParams.toString()}`);
+            const response = await fetch(`process.env.REACT_APP_API_BASE_URL/api/tickets?${queryParams.toString()}`);
             const data = await response.json();
 
             if (response.ok) {
@@ -61,11 +61,11 @@ function AdminDashboard({ user }) {
     // Fetch agents once on component mount
     const fetchAgents = useCallback(async () => {
         try {
-            const response = await fetch('http://localhost:3001/api/users?role=agent');
+            const response = await fetch('process.env.REACT_APP_API_BASE_URL/api/users?role=agent');
             const data = await response.json();
             if (response.ok) {
                 // Also include admins in the list of assignable "agents"
-                const admins = await fetch('http://localhost:3001/api/users?role=admin');
+                const admins = await fetch('process.env.REACT_APP_API_BASE_URL/api/users?role=admin');
                 const adminData = await admins.json();
                 setAllAgents([...data.users, ...adminData.users]);
             }
@@ -84,7 +84,7 @@ function AdminDashboard({ user }) {
     const handleUpdateTicket = async (ticketId, currentVersion, updates) => {
         setMessage({ type: '', text: '' });
         try {
-            const response = await fetch(`http://localhost:3001/api/tickets/${ticketId}`, {
+            const response = await fetch(`process.env.REACT_APP_API_BASE_URL/api/tickets/${ticketId}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ...updates, current_version: currentVersion, user_id: user.userId }),
@@ -145,7 +145,7 @@ function AdminDashboard({ user }) {
         if (window.confirm('Are you sure you want to delete this comment?')) {
             setMessage({ type: '', text: '' });
             try {
-                const response = await fetch(`http://localhost:3001/api/comments/${commentId}?adminId=${user.userId}`, {
+                const response = await fetch(`process.env.REACT_APP_API_BASE_URL/api/comments/${commentId}?adminId=${user.userId}`, {
                     method: 'DELETE',
                 });
 
