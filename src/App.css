@@ -1,38 +1,55 @@
+/* src/App.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap'); /* NEW FONT IMPORT */
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif; /* Use the new font */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    /* --- BACKGROUND IMAGE STYLES START HERE --- */
+    /* Suggestion: Use a more abstract, futuristic, or gradient-based background.
+       For demonstration, I'll provide a placeholder idea, but you should pick
+       an image that fits "advanced modern" and "vibrant." */
+    /*background-image: url('https://source.unsplash.com/random/1920x1080/?abstract,neon,tech,gradient');  Placeholder: dynamically fetches a vibrant abstract image */
+    /* OR, if you have a local image that fits this description: */
+    background-image: url('./assets/vibrant_abstract_bg.jpg'); 
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-color: #0d1a2d; /* Deep navy/indigo fallback matching a modern feel */
+    /* --- BACKGROUND IMAGE STYLES END HERE --- */
+
+    min-height: 100vh;
+    color: white;
+}
+
 .App {
-  text-align: center;
+    text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.main-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: calc(100vh - 64px);
+    padding: 20px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+code {
+    font-family: 'Fira Code', monospace; /* Fira Code is good for code snippets */
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+/* Updated link styles for vibrancy */
+.App a {
+    color: #00bcd4; /* Primary color for links */
+    text-decoration: none;
+    transition: color 0.3s ease-in-out;
 }
 
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.App a:hover {
+    color: #e91e63; /* Secondary color on hover */
+    text-decoration: underline;
 }
