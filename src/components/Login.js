@@ -1,24 +1,25 @@
-// src/components/Login.js
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Box, Button, TextField, Typography, Alert, useTheme } from '@mui/material'; // Import useTheme
+// MODIFIED: Removed Link as it requires a Router context
+import { Box, Button, TextField, Typography, Alert, useTheme } from '@mui/material';
 import { motion } from 'framer-motion';
 
 function Login({ onLoginSuccess }) {
     const [loginIdentifier, setLoginIdentifier] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState({ type: '', text: '' });
-    const theme = useTheme(); // Initialize useTheme
+    const theme = useTheme();
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         setMessage({ type: '', text: '' });
         try {
-            const response = await fetch('process.env.REACT_APP_API_BASE_URL/api/login', {
+            // MODIFIED: Replaced the environment variable with the actual backend URL
+            const response = await fetch(`https://helpdesk-api-backend.onrender.com/api/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ loginIdentifier, password }),
             });
+            
             const data = await response.json();
             if (response.ok) {
                 setMessage({ type: 'success', text: 'Login successful!' });
@@ -85,8 +86,8 @@ function Login({ onLoginSuccess }) {
                 
                 <Typography variant="body2" sx={{ mt: 1 }}>
                     Don't have an account? 
-                    {/* THE FIX IS HERE: Use Link with sx prop or theme colors */}
-                    <Link to="/register" style={{ color: theme.palette.secondary.main }}>Register here</Link>
+                    {/* MODIFIED: Replaced Link with a standard <a> tag */}
+                    <a href="/register" style={{ color: theme.palette.secondary.main }}>Register here</a>
                 </Typography>
             </Box>
         </motion.div>
