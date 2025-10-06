@@ -1,8 +1,26 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Box, Button, TextField, Typography, Alert, useTheme } from '@mui/material';
+import { Box, Button, TextField, Typography, Alert, useTheme, Paper, IconButton } from '@mui/material';
 import { motion } from 'framer-motion';
-import AnimatedCounters from './AnimatedCounters'; // Import the new component
+import AnimatedCounters from './AnimatedCounters';
+import ContentPasteIcon from '@mui/icons-material/ContentPaste';
+
+// Helper component for the test accounts
+function TestAccount({ role, email, password, onFill }) {
+    return (
+        <Paper elevation={2} sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1, bgcolor: 'rgba(255, 255, 255, 0.05)' }}>
+            <Box textAlign="left">
+                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>{role}</Typography>
+                <Typography variant="body2" color="text.secondary">{email}</Typography>
+                <Typography variant="body2" color="text.secondary">Password: {password}</Typography>
+            </Box>
+            <Button variant="outlined" startIcon={<ContentPasteIcon />} onClick={() => onFill(email, password)}>
+                Fill
+            </Button>
+        </Paper>
+    );
+}
+
 
 function Login({ onLoginSuccess }) {
     const [loginIdentifier, setLoginIdentifier] = useState('');
@@ -41,8 +59,12 @@ function Login({ onLoginSuccess }) {
         }
     };
 
+    const handleFill = (email, pass) => {
+        setLoginIdentifier(email);
+        setPassword(pass);
+    };
+
     return (
-        // Wrapped in a parent Box to contain both sections
         <Box> 
             <motion.div
                 style={{ margin: '80px auto 0 auto', maxWidth: '400px', width: '90%' }}
@@ -100,8 +122,31 @@ function Login({ onLoginSuccess }) {
                     </Typography>
                 </Box>
             </motion.div>
+
+            {/* Test Accounts Section */}
+            <motion.div
+                 style={{ margin: '40px auto 0 auto', maxWidth: '400px', width: '90%' }}
+                 initial={{ opacity: 0, y: 20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ duration: 0.5, delay: 0.1 }}
+            >
+                <Box sx={{ p: 2, backgroundColor: 'background.paper', borderRadius: 3 }}>
+                    <Typography variant="h6" sx={{ mb: 2, color: 'primary.light' }}>Test Accounts</Typography>
+                    <TestAccount 
+                        role="ADMIN" 
+                        email="admin@mail.com" 
+                        password="admin123" 
+                        onFill={handleFill} 
+                    />
+                    <TestAccount 
+                        role="USER" 
+                        email="test@gmail.com" 
+                        password="test" 
+                        onFill={handleFill} 
+                    />
+                </Box>
+            </motion.div>
             
-            {/* Added the AnimatedCounters component here */}
             <motion.div
                  style={{ margin: '40px auto 0 auto', maxWidth: '1100px', width: '90%' }}
                  initial={{ opacity: 0, y: 20 }}
