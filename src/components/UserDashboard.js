@@ -227,8 +227,8 @@ function UserDashboard({ user }) {
                                             </Box>
                                             <Box sx={{ display: 'flex', gap: 1, mt: { xs: 2, sm: 0 } }}>
                                                 {/* MODIFIED: Replaced Link with a standard <a> tag */}
-                                                <Button variant="outlined" component="a" href={`/tickets/${ticket.id}`}>
-                                                    View Details
+                                                <Button variant="outlined" component={Link} to={`/tickets/${ticket.id}`}>
+                                                  View Details
                                                 </Button>
                                                 {/* Only allow deletion if ticket is open and user is the creator */}
                                                 {(ticket.status === 'open' && user.userId === ticket.created_by_user_id) && (
