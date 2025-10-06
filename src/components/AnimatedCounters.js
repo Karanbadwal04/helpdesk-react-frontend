@@ -1,18 +1,20 @@
-    import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography } from '@mui/material';
+import { motion } from 'framer-motion';
 
 // Reusable Counter Component
 function Counter({ target, label, suffix = '' }) {
     const [count, setCount] = useState(0);
     const counterRef = useRef(null);
+    const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
         let frameId;
         const startCount = 0;
-        const duration = 2500; // Animation duration in ms
+        // MODIFIED: Increased duration to slow down the animation
+        const duration = 4000; // Animation duration in ms
         let startTime = null;
 
-        // Easing function for a "slow down" effect
         const easeOutExpo = t => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t));
 
         const animateCount = (timestamp) => {
@@ -28,15 +30,16 @@ function Counter({ target, label, suffix = '' }) {
             if (progress < duration) {
                 frameId = requestAnimationFrame(animateCount);
             } else {
-                setCount(target); // Ensure it ends exactly on the target
+                setCount(target);
             }
         };
 
         const observer = new IntersectionObserver((entries) => {
             if (entries[0].isIntersecting) {
+                setIsVisible(true); // Make visible before starting animation to prevent glitch
                 startTime = null; 
                 frameId = requestAnimationFrame(animateCount);
-                observer.disconnect(); // Animate only once per page load
+                observer.disconnect();
             }
         }, { threshold: 0.1 });
 
@@ -54,7 +57,13 @@ function Counter({ target, label, suffix = '' }) {
     }, [target]);
 
     return (
-        <Box ref={counterRef} sx={{ textAlign: 'center', margin: { xs: '1rem', md: '0 2rem' }, minWidth: '120px' }}>
+        <Box ref={counterRef} sx={{ 
+            textAlign: 'center', 
+            margin: { xs: '1rem', md: '0 1rem' }, // Reduced margin for better fit
+            minWidth: '120px',
+            opacity: isVisible ? 1 : 0, // Hide until animation starts
+            transition: 'opacity 0.5s ease-in'
+        }}>
             <Typography variant="h3" sx={{ fontWeight: 'bold', color: 'primary.light' }}>
                 {count.toLocaleString()}{suffix}
             </Typography>
@@ -70,10 +79,10 @@ export default function AnimatedCounters() {
     return (
         <Box sx={{
             display: 'flex',
-            justifyContent: 'center',
+            justifyContent: 'space-around', // MODIFIED: Changed to space-around for even distribution
             alignItems: 'center',
             flexWrap: 'wrap',
-            gap: { xs: '1rem', md: '2rem' },
+            gap: { xs: '1rem', md: '1rem' }, // Adjusted gap
             padding: { xs: '2rem 1rem', md: '4rem 1rem' },
             backgroundColor: 'rgba(18, 25, 38, 0.5)',
             borderRadius: '12px',
