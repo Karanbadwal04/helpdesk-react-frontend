@@ -5,12 +5,11 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { motion } from 'framer-motion';
-// MODIFIED: Removed Link as it requires a Router context
-// import { Link } from 'react-router-dom'; 
+import { Link } from 'react-router-dom'; // MODIFIED: Added back the Link import
 
 function AdminDashboard({ user }) {
     const [tickets, setTickets] = useState([]);
-    const [allAgents, setAllAgents] = useState([]);
+    const [allAgents, setAllAgents] = useState([]); // For assignment dropdown
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
     const [filterPriority, setFilterPriority] = useState('all');
@@ -18,9 +17,9 @@ function AdminDashboard({ user }) {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState({ type: '', text: '' });
+    const [message, setMessage] = useState({ type: '', text: '' }); // For user feedback
 
-    const ticketsPerPage = 10;
+    const ticketsPerPage = 10; // Number of tickets per page
 
     const fetchAdminTickets = useCallback(async () => {
         setLoading(true);
@@ -29,7 +28,7 @@ function AdminDashboard({ user }) {
             const queryParams = new URLSearchParams({
                 limit: ticketsPerPage,
                 offset: (currentPage - 1) * ticketsPerPage,
-                role: user.role,
+                role: user.role, // Pass admin role to backend (backend will return all for admin)
                 status: filterStatus,
                 priority: filterPriority,
                 breached: filterBreached,
@@ -38,7 +37,6 @@ function AdminDashboard({ user }) {
                 queryParams.append('search', searchTerm);
             }
 
-            // MODIFIED: Replaced environment variable with hardcoded URL
             const response = await fetch(`https://helpdesk-api-backend.onrender.com/api/tickets?${queryParams.toString()}`);
             const data = await response.json();
 
@@ -60,11 +58,9 @@ function AdminDashboard({ user }) {
 
     const fetchAgents = useCallback(async () => {
         try {
-            // MODIFIED: Replaced environment variable with hardcoded URL
             const response = await fetch('https://helpdesk-api-backend.onrender.com/api/users?role=agent');
             const data = await response.json();
             if (response.ok) {
-                // MODIFIED: Replaced environment variable with hardcoded URL
                 const admins = await fetch('https://helpdesk-api-backend.onrender.com/api/users?role=admin');
                 const adminData = await admins.json();
                 setAllAgents([...data.users, ...adminData.users]);
@@ -84,7 +80,6 @@ function AdminDashboard({ user }) {
     const handleUpdateTicket = async (ticketId, currentVersion, updates) => {
         setMessage({ type: '', text: '' });
         try {
-            // MODIFIED: Replaced environment variable with hardcoded URL
             const response = await fetch(`https://helpdesk-api-backend.onrender.com/api/tickets/${ticketId}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
@@ -93,7 +88,7 @@ function AdminDashboard({ user }) {
             const data = await response.json();
             if (response.ok) {
                 setMessage({ type: 'success', text: 'Ticket updated successfully!' });
-                fetchAdminTickets();
+                fetchAdminTickets(); // Refresh tickets after update
             } else {
                 setMessage({ type: 'error', text: data.error || 'Failed to update ticket.' });
             }
@@ -142,7 +137,6 @@ function AdminDashboard({ user }) {
         if (window.confirm('Are you sure you want to delete this comment?')) {
             setMessage({ type: '', text: '' });
             try {
-                // MODIFIED: Replaced environment variable with hardcoded URL
                 const response = await fetch(`https://helpdesk-api-backend.onrender.com/api/comments/${commentId}?adminId=${user.userId}`, {
                     method: 'DELETE',
                 });
@@ -298,8 +292,8 @@ function AdminDashboard({ user }) {
                                                     ))}
                                                 </Select>
                                             </FormControl>
-                                            {/* MODIFIED: Replaced Link with a standard <a> tag */}
-                                            <Button variant="outlined" component="a" href={`/tickets/${ticket.id}`}>
+                                            {/* MODIFIED: Changed back to Link component for proper navigation */}
+                                            <Button variant="outlined" component={Link} to={`/tickets/${ticket.id}`}>
                                                 View Details & Reply
                                             </Button>
                                         </Box>

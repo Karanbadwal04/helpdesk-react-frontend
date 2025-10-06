@@ -1,8 +1,8 @@
-// src/components/ProfileSettings.js
 import React, { useState, useEffect } from 'react';
 import { Box, Button, TextField, Typography, Paper, Alert } from '@mui/material';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+// MODIFIED: Removed useNavigate as it requires a Router context
+// import { useNavigate } from 'react-router-dom';
 
 function ProfileSettings({ user, onUserUpdate }) {
   const [name, setName] = useState(user?.name || '');
@@ -11,17 +11,18 @@ function ProfileSettings({ user, onUserUpdate }) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState({ type: '', text: '' });
-  const navigate = useNavigate();
+  // const navigate = useNavigate(); // MODIFIED: Removed this line
 
   useEffect(() => {
     if (!user) {
-      navigate('/login'); // Redirect if no user is logged in
+      // MODIFIED: Replaced navigate() with standard browser redirect
+      window.location.href = '/login'; // Redirect if no user is logged in
     } else {
       setName(user.name);
       setUsername(user.username);
       setEmail(user.email);
     }
-  }, [user, navigate]);
+  }, [user]); // MODIFIED: Removed navigate from dependencies
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -44,7 +45,8 @@ function ProfileSettings({ user, onUserUpdate }) {
     }
 
     try {
-      const response = await fetch(`process.env.REACT_APP_API_BASE_URL/api/users/${user.userId}`, {
+      // MODIFIED: Corrected the API URL
+      const response = await fetch(`https://helpdesk-api-backend.onrender.com/api/users/${user.userId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedFields),
@@ -53,12 +55,11 @@ function ProfileSettings({ user, onUserUpdate }) {
 
       if (response.ok) {
         setMessage({ type: 'success', text: data.message || 'Profile updated successfully!' });
-        // Update local user state if name, username, or email changed (password doesn't need local update)
         const updatedUser = { ...user };
         if (updatedFields.name) updatedUser.name = updatedFields.name;
         if (updatedFields.username) updatedUser.username = updatedFields.username;
         if (updatedFields.email) updatedUser.email = updatedFields.email;
-        onUserUpdate(updatedUser); // Call the prop function to update user state in App.js
+        onUserUpdate(updatedUser);
         setPassword('');
         setConfirmPassword('');
       } else {
