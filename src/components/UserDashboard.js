@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Box, Button, TextField, Typography, Paper, Select, MenuItem, FormControl, InputLabel, Pagination, CircularProgress, Alert } from '@mui/material';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 // MODIFIED: Removed Link as it requires a Router context
 // import { Link } from 'react-router-dom';
 
