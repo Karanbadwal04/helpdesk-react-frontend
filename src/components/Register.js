@@ -1,7 +1,6 @@
-// src/components/Register.js
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Box, Button, TextField, Typography, Alert, useTheme } from '@mui/material'; // Import Alert and useTheme
+// MODIFIED: Removed Link and useNavigate as they require a Router context
+import { Box, Button, TextField, Typography, Alert, useTheme } from '@mui/material';
 import { motion } from 'framer-motion';
 
 function Register() {
@@ -9,24 +8,27 @@ function Register() {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [message, setMessage] = useState({ type: '', text: '' }); // For user feedback
-    const navigate = useNavigate();
-    const theme = useTheme(); // Initialize useTheme
+    const [message, setMessage] = useState({ type: '', text: '' });
+    // MODIFIED: Removed useNavigate hook
+    const theme = useTheme();
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        setMessage({ type: '', text: '' }); // Clear previous messages
+        setMessage({ type: '', text: '' });
         try {
-            const response = await fetch('process.env.REACT_APP_API_BASE_URL/api/register', {
+            // MODIFIED: Replaced the environment variable with the actual backend URL to fix "process is not defined" error.
+            const response = await fetch(`https://helpdesk-api-backend.onrender.com/api/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, username, email, password }),
             });
-            const data = await response.json();
+            
             if (response.ok) {
                 setMessage({ type: 'success', text: 'Registration successful! Please log in.' });
-                setTimeout(() => navigate('/login'), 2000); // Redirect after a short delay
+                // MODIFIED: Used window.location.href for redirection instead of navigate
+                setTimeout(() => window.location.href = '/login', 2000);
             } else {
+                const data = await response.json();
                 setMessage({ type: 'error', text: data.error || 'Registration failed.' });
             }
         } catch (error) {
@@ -37,7 +39,7 @@ function Register() {
 
     return (
         <motion.div
-            style={{ margin: '80px auto 0 auto', maxWidth: '400px', width: '90%' }} // Consistent margin/width
+            style={{ margin: '80px auto 0 auto', maxWidth: '400px', width: '90%' }}
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
@@ -50,8 +52,8 @@ function Register() {
                     flexDirection: 'column',
                     alignItems: 'center',
                     gap: 2,
-                    padding: 4, // Increased padding
-                    borderRadius: 3, // More rounded corners
+                    padding: 4,
+                    borderRadius: 3,
                     backgroundColor: 'background.paper',
                 }}
             >
@@ -104,8 +106,8 @@ function Register() {
                 </Button>
                 <Typography variant="body2" sx={{ mt: 1 }}>
                     Already have an account? 
-                    {/* THE FIX IS HERE: Use Link with sx prop or theme colors */}
-                    <Link to="/login" style={{ color: theme.palette.primary.main }}>Login here</Link>
+                    {/* MODIFIED: Replaced Link component with a standard <a> tag */}
+                    <a href="/login" style={{ color: theme.palette.primary.main }}>Login here</a>
                 </Typography>
             </Box>
         </motion.div>
@@ -113,3 +115,4 @@ function Register() {
 }
 
 export default Register;
+
