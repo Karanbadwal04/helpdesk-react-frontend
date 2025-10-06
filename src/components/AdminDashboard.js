@@ -1,4 +1,3 @@
-// src/components/AdminDashboard.js
 import React, { useState, useEffect, useCallback } from 'react';
 import {
     Box, Button, TextField, Typography, Paper, Select, MenuItem,
@@ -6,11 +5,12 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom'; // To link to TicketDetail
+// MODIFIED: Removed Link as it requires a Router context
+// import { Link } from 'react-router-dom'; 
 
 function AdminDashboard({ user }) {
     const [tickets, setTickets] = useState([]);
-    const [allAgents, setAllAgents] = useState([]); // For assignment dropdown
+    const [allAgents, setAllAgents] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
     const [filterPriority, setFilterPriority] = useState('all');
@@ -18,11 +18,10 @@ function AdminDashboard({ user }) {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState({ type: '', text: '' }); // For user feedback
+    const [message, setMessage] = useState({ type: '', text: '' });
 
-    const ticketsPerPage = 10; // Number of tickets per page
+    const ticketsPerPage = 10;
 
-    // Memoize fetch function to prevent unnecessary re-renders in useEffect
     const fetchAdminTickets = useCallback(async () => {
         setLoading(true);
         setMessage({ type: '', text: '' });
@@ -30,7 +29,7 @@ function AdminDashboard({ user }) {
             const queryParams = new URLSearchParams({
                 limit: ticketsPerPage,
                 offset: (currentPage - 1) * ticketsPerPage,
-                role: user.role, // Pass admin role to backend (backend will return all for admin)
+                role: user.role,
                 status: filterStatus,
                 priority: filterPriority,
                 breached: filterBreached,
@@ -39,7 +38,8 @@ function AdminDashboard({ user }) {
                 queryParams.append('search', searchTerm);
             }
 
-            const response = await fetch(`process.env.REACT_APP_API_BASE_URL/api/tickets?${queryParams.toString()}`);
+            // MODIFIED: Replaced environment variable with hardcoded URL
+            const response = await fetch(`https://helpdesk-api-backend.onrender.com/api/tickets?${queryParams.toString()}`);
             const data = await response.json();
 
             if (response.ok) {
@@ -56,16 +56,16 @@ function AdminDashboard({ user }) {
         } finally {
             setLoading(false);
         }
-    }, [user, currentPage, searchTerm, filterStatus, filterPriority, filterBreached, ticketsPerPage]);
+    }, [user, currentPage, searchTerm, filterStatus, filterPriority, filterBreached]);
 
-    // Fetch agents once on component mount
     const fetchAgents = useCallback(async () => {
         try {
-            const response = await fetch('process.env.REACT_APP_API_BASE_URL/api/users?role=agent');
+            // MODIFIED: Replaced environment variable with hardcoded URL
+            const response = await fetch('https://helpdesk-api-backend.onrender.com/api/users?role=agent');
             const data = await response.json();
             if (response.ok) {
-                // Also include admins in the list of assignable "agents"
-                const admins = await fetch('process.env.REACT_APP_API_BASE_URL/api/users?role=admin');
+                // MODIFIED: Replaced environment variable with hardcoded URL
+                const admins = await fetch('https://helpdesk-api-backend.onrender.com/api/users?role=admin');
                 const adminData = await admins.json();
                 setAllAgents([...data.users, ...adminData.users]);
             }
@@ -79,12 +79,13 @@ function AdminDashboard({ user }) {
             fetchAdminTickets();
             fetchAgents();
         }
-    }, [user, fetchAdminTickets, fetchAgents]); // Dependencies for useEffect
+    }, [user, fetchAdminTickets, fetchAgents]);
 
     const handleUpdateTicket = async (ticketId, currentVersion, updates) => {
         setMessage({ type: '', text: '' });
         try {
-            const response = await fetch(`process.env.REACT_APP_API_BASE_URL/api/tickets/${ticketId}`, {
+            // MODIFIED: Replaced environment variable with hardcoded URL
+            const response = await fetch(`https://helpdesk-api-backend.onrender.com/api/tickets/${ticketId}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ...updates, current_version: currentVersion, user_id: user.userId }),
@@ -92,7 +93,7 @@ function AdminDashboard({ user }) {
             const data = await response.json();
             if (response.ok) {
                 setMessage({ type: 'success', text: 'Ticket updated successfully!' });
-                fetchAdminTickets(); // Refresh tickets after update
+                fetchAdminTickets();
             } else {
                 setMessage({ type: 'error', text: data.error || 'Failed to update ticket.' });
             }
@@ -108,7 +109,7 @@ function AdminDashboard({ user }) {
 
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
-        setCurrentPage(1); // Reset to first page on new search
+        setCurrentPage(1);
     };
 
     const handleFilterStatusChange = (e) => {
@@ -126,17 +127,13 @@ function AdminDashboard({ user }) {
         setCurrentPage(1);
     };
 
-    // This SLA color logic is now simplified as the backend provides 'sla_status'
     const getSLAColor = (slaStatus) => {
         if (slaStatus === 'breached') return 'error.main';
         if (slaStatus === 'due_soon') return 'warning.main';
         if (slaStatus === 'on_track') return 'success.main';
-        return 'text.secondary'; // 'closed' or 'no_sla'
+        return 'text.secondary';
     };
 
-    // Admin should ideally manage comments directly on TicketDetail or have a robust modal here.
-    // For now, removing direct comment view/reply from this overview for simplicity
-    // as TicketDetail is the designated place for full conversation.
     const handleDeleteComment = async (commentId) => {
         if (!user || user.role !== 'admin') {
             setMessage({ type: 'error', text: 'You do not have permission to delete comments.' });
@@ -145,13 +142,13 @@ function AdminDashboard({ user }) {
         if (window.confirm('Are you sure you want to delete this comment?')) {
             setMessage({ type: '', text: '' });
             try {
-                const response = await fetch(`process.env.REACT_APP_API_BASE_URL/api/comments/${commentId}?adminId=${user.userId}`, {
+                // MODIFIED: Replaced environment variable with hardcoded URL
+                const response = await fetch(`https://helpdesk-api-backend.onrender.com/api/comments/${commentId}?adminId=${user.userId}`, {
                     method: 'DELETE',
                 });
 
                 if (response.ok) {
                     setMessage({ type: 'success', text: 'Comment deleted.' });
-                    // Re-fetch tickets or update state if comments were shown
                     fetchAdminTickets();
                 } else {
                     const data = await response.json();
@@ -190,7 +187,6 @@ function AdminDashboard({ user }) {
             <Box component={Paper} elevation={3} sx={{ p: 3, mb: 4, bgcolor: 'background.paper' }}>
                 <Typography variant="h5" component="h3" sx={{ mb: 2, color: 'primary.main' }}>Ticket Overview</Typography>
 
-                {/* Filters and Search */}
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
                     <TextField
                         label="Search tickets..."
@@ -218,7 +214,6 @@ function AdminDashboard({ user }) {
                             <MenuItem value="high">High</MenuItem>
                         </Select>
                     </FormControl>
-                    {/* Checkbox for Breached SLA */}
                     <FormControl variant="outlined" size="small" sx={{ display: 'flex', alignItems: 'center', minWidth: 120 }}>
                         <label>
                             <input
@@ -293,7 +288,7 @@ function AdminDashboard({ user }) {
                                                 <InputLabel id={`assign-label-${ticket.id}`}>Assign To</InputLabel>
                                                 <Select
                                                     labelId={`assign-label-${ticket.id}`}
-                                                    value={ticket.assigned_to_user_id || ''} // Use '' for unassigned
+                                                    value={ticket.assigned_to_user_id || ''}
                                                     label="Assign To"
                                                     onChange={(e) => handleUpdateTicket(ticket.id, ticket.version, { assigned_to_user_id: e.target.value })}
                                                 >
@@ -303,7 +298,8 @@ function AdminDashboard({ user }) {
                                                     ))}
                                                 </Select>
                                             </FormControl>
-                                            <Button variant="outlined" component={Link} to={`/tickets/${ticket.id}`}>
+                                            {/* MODIFIED: Replaced Link with a standard <a> tag */}
+                                            <Button variant="outlined" component="a" href={`/tickets/${ticket.id}`}>
                                                 View Details & Reply
                                             </Button>
                                         </Box>

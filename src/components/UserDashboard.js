@@ -1,8 +1,8 @@
-// src/components/UserDashboard.js
 import React, { useState, useEffect, useCallback } from 'react';
 import { Box, Button, TextField, Typography, Paper, Select, MenuItem, FormControl, InputLabel, Pagination, CircularProgress, Alert } from '@mui/material';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+// MODIFIED: Removed Link as it requires a Router context
+// import { Link } from 'react-router-dom';
 
 function UserDashboard({ user }) {
     const [tickets, setTickets] = useState([]);
@@ -33,7 +33,8 @@ function UserDashboard({ user }) {
                 queryParams.append('search', searchTerm);
             }
 
-            const response = await fetch(`process.env.REACT_APP_API_BASE_URL/api/tickets?${queryParams.toString()}`);
+            // MODIFIED: Replaced environment variable with hardcoded URL
+            const response = await fetch(`https://helpdesk-api-backend.onrender.com/api/tickets?${queryParams.toString()}`);
             const data = await response.json();
             if (response.ok) {
                 // No client-side filtering needed here, backend handles it with userId and role
@@ -50,7 +51,7 @@ function UserDashboard({ user }) {
         } finally {
             setLoading(false);
         }
-    }, [user, currentPage, searchTerm, ticketsPerPage]); // Dependencies for useCallback
+    }, [user, currentPage, searchTerm]); // MODIFIED: Removed ticketsPerPage from dependencies as it's a constant
 
     useEffect(() => {
         if (user) {
@@ -62,7 +63,8 @@ function UserDashboard({ user }) {
         e.preventDefault();
         setMessage({ type: '', text: '' }); // Clear previous messages
         try {
-            const response = await fetch('process.env.REACT_APP_API_BASE_URL/api/tickets', {
+            // MODIFIED: Replaced environment variable with hardcoded URL
+            const response = await fetch('https://helpdesk-api-backend.onrender.com/api/tickets', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ title, description, created_by_user_id: user.userId, priority }),
@@ -88,7 +90,8 @@ function UserDashboard({ user }) {
         if (window.confirm('Are you sure you want to delete this ticket? This cannot be undone.')) {
             setMessage({ type: '', text: '' });
             try {
-                const response = await fetch(`process.env.REACT_APP_API_BASE_URL/api/tickets/${ticketId}`, {
+                // MODIFIED: Replaced environment variable with hardcoded URL
+                const response = await fetch(`https://helpdesk-api-backend.onrender.com/api/tickets/${ticketId}`, {
                     method: 'DELETE',
                 });
                 const data = await response.json();
@@ -222,7 +225,8 @@ function UserDashboard({ user }) {
                                                 )}
                                             </Box>
                                             <Box sx={{ display: 'flex', gap: 1, mt: { xs: 2, sm: 0 } }}>
-                                                <Button variant="outlined" component={Link} to={`/tickets/${ticket.id}`}>
+                                                {/* MODIFIED: Replaced Link with a standard <a> tag */}
+                                                <Button variant="outlined" component="a" href={`/tickets/${ticket.id}`}>
                                                     View Details
                                                 </Button>
                                                 {/* Only allow deletion if ticket is open and user is the creator */}
