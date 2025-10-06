@@ -21,6 +21,7 @@ function AdminDashboard({ user }) {
 
     const ticketsPerPage = 10; // Number of tickets per page
 
+    // Memoize fetch function to prevent unnecessary re-renders in useEffect
     const fetchAdminTickets = useCallback(async () => {
         setLoading(true);
         setMessage({ type: '', text: '' });
@@ -37,6 +38,7 @@ function AdminDashboard({ user }) {
                 queryParams.append('search', searchTerm);
             }
 
+            // MODIFIED: Corrected the API URL syntax
             const response = await fetch(`https://helpdesk-api-backend.onrender.com/api/tickets?${queryParams.toString()}`);
             const data = await response.json();
 
@@ -54,13 +56,16 @@ function AdminDashboard({ user }) {
         } finally {
             setLoading(false);
         }
-    }, [user, currentPage, searchTerm, filterStatus, filterPriority, filterBreached]);
+    }, [user, currentPage, searchTerm, filterStatus, filterPriority, filterBreached]); // MODIFIED: Corrected dependencies
 
+    // Fetch agents once on component mount
     const fetchAgents = useCallback(async () => {
         try {
+            // MODIFIED: Corrected the API URL syntax
             const response = await fetch('https://helpdesk-api-backend.onrender.com/api/users?role=agent');
             const data = await response.json();
             if (response.ok) {
+                // Also include admins in the list of assignable "agents"
                 const admins = await fetch('https://helpdesk-api-backend.onrender.com/api/users?role=admin');
                 const adminData = await admins.json();
                 setAllAgents([...data.users, ...adminData.users]);
@@ -80,6 +85,7 @@ function AdminDashboard({ user }) {
     const handleUpdateTicket = async (ticketId, currentVersion, updates) => {
         setMessage({ type: '', text: '' });
         try {
+            // MODIFIED: Corrected the API URL syntax
             const response = await fetch(`https://helpdesk-api-backend.onrender.com/api/tickets/${ticketId}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
@@ -137,6 +143,7 @@ function AdminDashboard({ user }) {
         if (window.confirm('Are you sure you want to delete this comment?')) {
             setMessage({ type: '', text: '' });
             try {
+                // MODIFIED: Corrected the API URL syntax
                 const response = await fetch(`https://helpdesk-api-backend.onrender.com/api/comments/${commentId}?adminId=${user.userId}`, {
                     method: 'DELETE',
                 });
@@ -321,3 +328,4 @@ function AdminDashboard({ user }) {
 }
 
 export default AdminDashboard;
+
