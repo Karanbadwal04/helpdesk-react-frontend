@@ -5,11 +5,11 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom'; // MODIFIED: Added back the Link import
+import { Link } from 'react-router-dom';
 
 function AdminDashboard({ user }) {
     const [tickets, setTickets] = useState([]);
-    const [allAgents, setAllAgents] = useState([]); // For assignment dropdown
+    const [allAgents, setAllAgents] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
     const [filterPriority, setFilterPriority] = useState('all');
@@ -17,19 +17,27 @@ function AdminDashboard({ user }) {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState({ type: '', text: '' }); // For user feedback
+    const [message, setMessage] = useState({ type: '', text: '' });
 
-    const ticketsPerPage = 10; // Number of tickets per page
+    const ticketsPerPage = 10;
 
-    // Memoize fetch function to prevent unnecessary re-renders in useEffect
+    // MODIFIED: Use the correct environment variable name
+    const backendUrl = process.env.REACT_APP_API_BASE_URL;
+
     const fetchAdminTickets = useCallback(async () => {
+        if (!backendUrl) {
+            setMessage({ type: 'error', text: 'Backend URL not configured.' });
+            setLoading(false);
+            return;
+        }
+
         setLoading(true);
         setMessage({ type: '', text: '' });
         try {
             const queryParams = new URLSearchParams({
                 limit: ticketsPerPage,
                 offset: (currentPage - 1) * ticketsPerPage,
-                role: user.role, // Pass admin role to backend (backend will return all for admin)
+                role: user.role,
                 status: filterStatus,
                 priority: filterPriority,
                 breached: filterBreached,
@@ -38,8 +46,7 @@ function AdminDashboard({ user }) {
                 queryParams.append('search', searchTerm);
             }
 
-            // MODIFIED: Corrected the API URL syntax
-            const response = await fetch(`https://helpdesk-api-backend.onrender.com/api/tickets?${queryParams.toString()}`);
+            const response = await fetch(`${backendUrl}/api/tickets?${queryParams.toString()}`);
             const data = await response.json();
 
             if (response.ok) {
@@ -56,24 +63,25 @@ function AdminDashboard({ user }) {
         } finally {
             setLoading(false);
         }
-    }, [user, currentPage, searchTerm, filterStatus, filterPriority, filterBreached]); // MODIFIED: Corrected dependencies
+    }, [user, currentPage, searchTerm, filterStatus, filterPriority, filterBreached, backendUrl]);
 
-    // Fetch agents once on component mount
     const fetchAgents = useCallback(async () => {
+        if (!backendUrl) {
+            console.error('Backend URL not configured for fetching agents.');
+            return;
+        }
         try {
-            // MODIFIED: Corrected the API URL syntax
-            const response = await fetch('https://helpdesk-api-backend.onrender.com/api/users?role=agent');
+            const response = await fetch(`${backendUrl}/api/users?role=agent`);
             const data = await response.json();
             if (response.ok) {
-                // Also include admins in the list of assignable "agents"
-                const admins = await fetch('https://helpdesk-api-backend.onrender.com/api/users?role=admin');
+                const admins = await fetch(`${backendUrl}/api/users?role=admin`);
                 const adminData = await admins.json();
                 setAllAgents([...data.users, ...adminData.users]);
             }
         } catch (error) {
             console.error('Failed to fetch agents:', error);
         }
-    }, []);
+    }, [backendUrl]);
 
     useEffect(() => {
         if (user && user.role === 'admin') {
@@ -83,10 +91,13 @@ function AdminDashboard({ user }) {
     }, [user, fetchAdminTickets, fetchAgents]);
 
     const handleUpdateTicket = async (ticketId, currentVersion, updates) => {
+        if (!backendUrl) {
+            setMessage({ type: 'error', text: 'Backend URL not configured for updating ticket.' });
+            return;
+        }
         setMessage({ type: '', text: '' });
         try {
-            // MODIFIED: Corrected the API URL syntax
-            const response = await fetch(`https://helpdesk-api-backend.onrender.com/api/tickets/${ticketId}`, {
+            const response = await fetch(`${backendUrl}/api/tickets/${ticketId}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ...updates, current_version: currentVersion, user_id: user.userId }),
@@ -94,7 +105,7 @@ function AdminDashboard({ user }) {
             const data = await response.json();
             if (response.ok) {
                 setMessage({ type: 'success', text: 'Ticket updated successfully!' });
-                fetchAdminTickets(); // Refresh tickets after update
+                fetchAdminTickets();
             } else {
                 setMessage({ type: 'error', text: data.error || 'Failed to update ticket.' });
             }
@@ -136,6 +147,10 @@ function AdminDashboard({ user }) {
     };
 
     const handleDeleteComment = async (commentId) => {
+        if (!backendUrl) {
+            setMessage({ type: 'error', text: 'Backend URL not configured for deleting comment.' });
+            return;
+        }
         if (!user || user.role !== 'admin') {
             setMessage({ type: 'error', text: 'You do not have permission to delete comments.' });
             return;
@@ -143,8 +158,7 @@ function AdminDashboard({ user }) {
         if (window.confirm('Are you sure you want to delete this comment?')) {
             setMessage({ type: '', text: '' });
             try {
-                // MODIFIED: Corrected the API URL syntax
-                const response = await fetch(`https://helpdesk-api-backend.onrender.com/api/comments/${commentId}?adminId=${user.userId}`, {
+                const response = await fetch(`${backendUrl}/api/comments/${commentId}?adminId=${user.userId}`, {
                     method: 'DELETE',
                 });
 
@@ -299,7 +313,6 @@ function AdminDashboard({ user }) {
                                                     ))}
                                                 </Select>
                                             </FormControl>
-                                            {/* MODIFIED: Changed back to Link component for proper navigation */}
                                             <Button variant="outlined" component={Link} to={`/tickets/${ticket.id}`}>
                                                 View Details & Reply
                                             </Button>
